@@ -19,15 +19,28 @@ t[1]=1
 # simulate with for loop
 lengthy = simlength-1
 for (i in 1:lengthy){
-  Nt[i+1]=Nt[i]+rN*Nt[i]*(1-((Nt[i]+Mt[i])/K))
-  Mt[i+1]=Mt[i]+rN*Mt[i]*(1-((Nt[i]+Mt[i])/K))
+  # equilibrium is reached a bit before t =200, so introduce drug there
+    if (i < 200){
+      Nt[i+1]=Nt[i]+rN*Nt[i]*(1-((Nt[i]+Mt[i])/K))
+      Mt[i+1]=Mt[i]+rN*Mt[i]*(1-((Nt[i]+Mt[i])/K))
+    } 
+    else {
+      Nt[i+1]=Nt[i]+-1*rN*Nt[i]*(1-((Nt[i]+Mt[i])/K))
+      Mt[i+1]=Mt[i]+0.5*rN*Mt[i]*(1-((Nt[i]+Mt[i])/K))
+    }
+
   t[i] = i
 }
-# graph it! 
+
+# make dataframe
 simulate= data.frame("time"=t, "Normal"=Nt, "Mutant"= Mt)
 head(simulate)
-b <- ggplot(data=simulate, aes(x=time,y=Normal)) +
+simulate_long <- melt(simulate, id="time")  # convert to long format
+
+#plot simulation with ggplot
+b <- ggplot(data=simulate_long, aes(x=time,y=value, colour = variable)) +
   geom_line()+
   xlab("time")+ylab("# cells")+
   theme_classic()
 b
+
